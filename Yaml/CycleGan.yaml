@@ -1,0 +1,35 @@
+#####
+#name: CycleGan
+name: CycleGanZoom
+bidirect: False #Unidirectional or bidirectional
+regist: True    # With or without registration network
+noise_level: 1  #  noise level
+port: 6019   #  port parameters
+#save_root: './output_30k/Cyc/NC+R/'
+save_root: '/home/PET-CT/hachi/Reg-GAN/Checkpoint/phase2/augment/head/'
+#image_save: './output_30k/Cyc/NC+R/img/'
+image_save: './output_30k/Zoom/Cyc/NC+R/img/'
+
+# lamda weight
+Adv_lamda: 1
+Cyc_lamda: 10
+Corr_lamda: 20
+Smooth_lamda: 10
+
+
+epoch: 0        # starting epoch
+n_epochs: 15       # Hcd ow often do you want to display output images during training
+#batchSize: 30      # size of the batches
+batchSize: 1
+#dataroot: '/workdir/radish/PET-CT/2D_CT_PET/train/'     # root directory of the dataset
+dataroot: '/workdir/radish/PET-CT/2D_CT_PET_head/train/'  
+#val_dataroot: '/workdir/radish/PET-CT/2D_CT_PET/val/'
+val_dataroot: '/workdir/radish/PET-CT/2D_CT_PET_head/val/'
+lr: 0.00001                   # initial learning rate
+decay_epoch: 20            # epoch to start linearly decaying the learning rate to 0
+size: 256                # size of the data crop
+input_nc: 1         
+output_nc: 1                  
+cuda: True                
+n_cpu: 1
+
