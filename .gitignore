@@ -120,3 +120,6 @@ DINH THI XUAN/
 3D_*.py
 *.gz
 *.ipynb
+
+metric*.py
+README_infer.md

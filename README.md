@@ -1,9 +1,5 @@
 # Breaking the Dilemma of Medical Image-to-image Translation
-![bat](./p2pcycreg.png)
-
-Get the full paper on [Arxiv](https://arxiv.org/pdf/2110.06465.pdf).
-This paper has been accepted by [NeurIPS 2021 (Spotlight)](https://openreview.net/forum?id=C0GmZH2RnVR&referrer=%5BAuthor%20Console%5D(%2Fgroup%3Fid%3DNeurIPS.cc%2F2021%2FConference%2FAuthors%23your-submissions)).
-
+3DCT2PET
 ## Main Reference Environment
 1. Linux         (Titan RTX)
 2. Python        (3.6.6)
@@ -15,39 +11,43 @@ This paper has been accepted by [NeurIPS 2021 (Spotlight)](https://openreview.ne
 9. cv2           (3.4.2)
 10. PIL          (8.3.2)
 
+## Environmen setup
+`conda env create -f environment.yml`
+
 ## Usage
-1. Create dataset
-   -  train path/A/
-   -  train path/B/
-   -  val path/A/
-   -  val path/B/ 
-2. The default data file form is .npy and normalized to [-1,1].
-3. Modify the parameters in the .yaml file as needed:
-   -  **bidirect**: whether to use bidirectional network, corresponding to the C or NC mode in the paper.
-   -  **regist**: whether the registration network is used, corresponding to the +R mode in the paper.
-   - **noise_level**: set to 0 if you do not want to use noise.
-   - **port**: port parameters of visdom.
-4. Default RegGAN mode (bidirect:**False**    regist:**True**).
-5. Start visdom：
- ```
-python -m visdom.server -p 6019
-```
-If other port parameters are used, you need to modify the port in yaml.
 
-6. Train:
- ```
-python train.py
-```
-## Trained Weights
-We provide Pix2pix, CycleGAN, RegGAN trained weights under the condition of Noise.0:
-https://drive.google.com/file/d/1xWXB9u6dQ9ZytmgQl_0ph4H_Ivtd41zJ/view?usp=sharing
--  Pix2pix_noise0
--  CycleGAN_noise0
--  RegGAN_noise0
+### API Function
+`from 3DCT2PET_func import infer_ct_to_pet`
+input: 3D CT numpy array
+output: 3D PET numpy array
 
-## Processed data
-We provide some processed data for your convenience：
-https://drive.google.com/file/d/1PiTzGQEVV7NO4nPaHeQv61WgDxoD76nL/view?usp=sharing
+### Terminal
+**Bước 1: Chỉnh sửa file `3DCT2PET_func.py`**
+
+Mở file `3DCT2PET_func.py` và tìm đến khối `if __name__ == '__main__':`. Chỉnh sửa 2 đường dẫn sau cho phù hợp với máy của bạn:
+
+```python
+if __name__ == '__main__':
+    # ... 
+    INPUT_CT_NPY_PATH = 'path/to/your/input_ct_file.npy'  # <<< THAY ĐỔI ĐƯỜNG DẪN NÀY
+    OUTPUT_PET_NPY_PATH = 'output/result_pet.npy'        # <<< THAY ĐỔI ĐƯỜNG DẪN NÀY
+    
+    # ... phần còn lại của code
+```
+
+**Bước 2: Chạy script**
+
+Mở terminal và chạy lệnh:
+
+```bash
+python 3DCT2PET_func.py
+```
+
+**Bước 3: Kiểm tra kết quả**
+
+Sau khi script chạy xong, một file `.npy` chứa kết quả PET 3D sẽ được tạo ra tại đường dẫn `OUTPUT_PET_NPY_PATH` mà bạn đã chỉ định.
+
+
 
 
 ## Citation
