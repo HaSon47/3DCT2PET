@@ -21,6 +21,7 @@
 from 3DCT2PET_func import infer_ct_to_pet
 ```
 input: 3D CT numpy array
+
 output: 3D PET numpy array
 
 ### Terminal
