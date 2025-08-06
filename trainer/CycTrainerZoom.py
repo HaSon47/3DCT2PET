@@ -453,7 +453,7 @@ class Cyc_Trainer():
         #Thực hiện inference trên một volume CT (dạng mảng NumPy) và trả về PET.
         #Hàm này được thiết kế để phục vụ cho API.
 
-        self.netG_A2B.load_state_dict(torch.load("/home/PET-CT/hachi/Reg-GAN/Checkpoint/phase2/augment/head/netG_A2B_epoch2.pth"))
+        self.netG_A2B.load_state_dict(torch.load(self.config['checkpoint_path']))
 
         # 1. Định nghĩa các hàm con tiền/hậu xử lý (Lấy từ _3D_inference)
         def delete_background_numpy(ct_array: np.ndarray, 

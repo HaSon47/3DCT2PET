@@ -17,6 +17,11 @@ To create the environment using `conda`, run:
 conda env create -f environment.yml
 ```
 
+## Checkpoint
+Thay đường dẫn tới checkpoint của bạn trong file `Yaml/CycleGan.yaml'
+```python
+checkpoint_path: 'path/to/checkpoint'
+```
 ## Usage
 
 ### Using as an API 

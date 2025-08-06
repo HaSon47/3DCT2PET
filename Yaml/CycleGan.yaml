@@ -7,6 +7,7 @@ noise_level: 1  #  noise level
 port: 6019   #  port parameters
 #save_root: './output_30k/Cyc/NC+R/'
 save_root: '/home/PET-CT/hachi/Reg-GAN/Checkpoint/phase2/augment/head/'
+checkpoint_path: '/home/PET-CT/hachi/Reg-GAN/Checkpoint/phase2/augment/head/netG_A2B_epoch2.pth'
 #image_save: './output_30k/Cyc/NC+R/img/'
 image_save: './output_30k/Zoom/Cyc/NC+R/img/'
 
