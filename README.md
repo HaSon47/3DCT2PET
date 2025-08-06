@@ -12,19 +12,21 @@
 10. PIL          (8.3.2)
 
 ## Environmen setup
-`conda env create -f environment.yml`
+To create the environment using `conda`, run:
+```bash
+conda env create -f environment.yml
+```
 
 ## Usage
 
-### API Function
+### Using as an API 
 ```python
 from 3DCT2PET_func import infer_ct_to_pet
 ```
-input: 3D CT numpy array
+- input: 3D CT numpy array
+- output: 3D PET numpy array
 
-output: 3D PET numpy array
-
-### Terminal
+### Using via Terminal
 **Bước 1: Chỉnh sửa file `3DCT2PET_func.py`**
 
 Mở file `3DCT2PET_func.py` và tìm đến khối `if __name__ == '__main__':`. Chỉnh sửa 2 đường dẫn sau cho phù hợp với máy của bạn:
