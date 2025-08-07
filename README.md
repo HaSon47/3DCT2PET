@@ -25,11 +25,27 @@ checkpoint_path: 'path/to/checkpoint'
 ## Usage
 
 ### Using as an API 
+#### 3D CT Numpy to 3D PET Numpy
 ```python
 from 3DCT2PET_func import infer_ct_to_pet
 ```
 - input: 3D CT numpy array
 - output: 3D PET numpy array
+
+#### 3D PET Numpy to PET DICOM
+```python
+from 3DCT2PET_func import convert_ct_to_pet
+```
+- input:
+```python
+"""
+    pet_npy_path: path to your 3D Pet npy 
+    ct_dcm_folder: path to coresponding CT dicom of CT npy
+    pet_template_path: path to template of a Pet dicom file
+    output_folder: path to save output Pet dicom folder
+"""
+```
+
 
 ### Using via Terminal
 **Bước 1: Chỉnh sửa file `3DCT2PET_func.py`**

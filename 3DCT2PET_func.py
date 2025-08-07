@@ -8,6 +8,9 @@ import numpy as np
 from PIL import Image
 import torchvision.transforms as transforms
 from torch.autograd import Variable # Cần thiết nếu trainer của bạn vẫn dùng
+import copy
+import pydicom
+from pydicom.uid import generate_uid
 
 from trainer import CycTrainerZoom 
 
@@ -55,6 +58,78 @@ def infer_ct_to_pet(ct_numpy_array: np.ndarray, config_path: str = '/home/PET-CT
     print("INFO: Inference finished.")
 
     return pet_numpy_output
+
+def convert_ct_to_pet(
+    pet_npy_path,
+    ct__dcm_folder,
+    pet_template_path,
+    output_folder
+):
+    # Load predicted PET data
+    pet_npy = np.load(pet_npy_path)
+
+    # Hàm đọc file DICOM và lấy SliceLocation nếu có
+    def dcm_to_array(dcm_path):
+        dcm = pydicom.dcmread(dcm_path)
+        return dcm.SliceLocation if 'SliceLocation' in dcm else None
+
+    # Tạo danh sách các file CT kèm SliceLocation
+    ct_pair = []
+    for fname in os.listdir(ct__dcm_folder):
+        dcm_path = os.path.join(ct__dcm_folder, fname)
+        lo = dcm_to_array(dcm_path)
+        ct_pair.append([fname, lo])
+    ct_pair = sorted(ct_pair, key=lambda x: x[1] if x[1] is not None else 0)
+
+    # Đảm bảo thư mục đầu ra tồn tại
+    os.makedirs(output_folder, exist_ok=True)
+
+    # Đọc PET mẫu
+    pet_template = pydicom.dcmread(pet_template_path)
+
+    # Bắt đầu xử lý từng lát cắt
+    for ind, pair in enumerate(ct_pair):
+        try:
+            ct_path = os.path.join(ct__dcm_folder, pair[0])
+            ct_dicom = pydicom.dcmread(ct_path)
+
+            # Tạo bản sao PET
+            pet_dicom = copy.deepcopy(pet_template)
+
+            # Copy metadata từ CT
+            pet_dicom.PatientID = ct_dicom.PatientID
+            pet_dicom.PatientName = ct_dicom.PatientName
+            pet_dicom.StudyInstanceUID = ct_dicom.StudyInstanceUID
+            pet_dicom.SOPInstanceUID = generate_uid()
+
+            if hasattr(pet_dicom, "file_meta"):
+                pet_dicom.file_meta.MediaStorageSOPInstanceUID = generate_uid()
+
+            pet_dicom.SeriesDescription = "Converted from CT to PET"
+            pet_dicom.ReconstructionDiameter = ct_dicom.ReconstructionDiameter
+            pet_dicom.FieldOfViewShape = getattr(ct_dicom, "FieldOfViewShape", "CIRCULAR")
+            pet_dicom.FieldOfViewDimensions = getattr(ct_dicom, "FieldOfViewDimensions", [500, 500])
+            pet_dicom.PatientPosition = ct_dicom.PatientPosition
+            pet_dicom.ImagePositionPatient = ct_dicom.ImagePositionPatient
+            pet_dicom.NumberOfSlices = pet_npy.shape[0]
+            pet_dicom.ImageIndex = ind
+
+            # Cập nhật pixel data
+            pixel_data = pet_npy[ind]
+            pixel_data = pixel_data.astype(np.uint16)
+            pet_dicom.PixelData = pixel_data.tobytes()
+
+            # Lưu file
+            new_pet_path = os.path.join(output_folder, f"{ind+1:04d}.dcm")
+            pet_dicom.save_as(new_pet_path)
+            print(f"✅ Đã tạo {new_pet_path}")
+
+        except Exception as e:
+            print(f"⚠️ Lỗi khi xử lý {pair[0]}: {e}")
+
+    print("🔄 Hoàn tất chuyển đổi tất cả file CT sang PET.")
+    print(f"📂 Kết quả đã được lưu tại: {output_folder}")
+
 
 
 if __name__ == '__main__':
