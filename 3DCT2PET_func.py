@@ -136,9 +136,10 @@ if __name__ == '__main__':
     # --- BƯỚC 1: CẤU HÌNH CÁC ĐƯỜNG DẪN ---
     # Bạn chỉ cần thay đổi 3 dòng này cho phù hợp với máy của bạn
     CONFIG_FILE_PATH = '/home/PET-CT/huutien/Reg-GAN/Yaml/CycleGan.yaml'
-    INPUT_CT_NPY_PATH = '/workdir/radish/PET-CT/CT2PET_3d_npy/DICOM_000000006355_LƯỜNG THỊ MAI 17909/0002.npy' # Ví dụ
-    OUTPUT_PET_NPY_PATH = '/home/PET-CT/huutien/Reg-GAN/output_demo_dienbien/DICOM_000000006355_LƯỜNG THỊ MAI 17909/output_pet_from_api.npy'
+    INPUT_CT_NPY_PATH = '/workdir/radish/PET-CT/data_Dienbien_demo_27_8_npy_v2/DICOM_000000026833_TRẦN THÁI SƠN 47742/0001.npy' # Ví dụ
+    OUTPUT_PET_NPY_PATH = '/home/PET-CT/huutien/Reg-GAN/output_demo_dienbien_funct/demo_27_8/DICOM_000000026833_TRẦN THÁI SƠN 47742/predict_head_epoch0.npy'
     
+    os.makedirs(os.path.dirname(OUTPUT_PET_NPY_PATH), exist_ok=True)
     # --- BƯỚC 2: TẢI DỮ LIỆU ĐẦU VÀO ---
     print(f"INFO: Loading input CT from: {INPUT_CT_NPY_PATH}")
     try:

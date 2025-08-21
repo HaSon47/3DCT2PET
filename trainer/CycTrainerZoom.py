@@ -73,25 +73,25 @@ class Cyc_Trainer():
         self.val_data = DataLoader(ValDataset(config['val_dataroot']),
                                 batch_size=config['batchSize'], shuffle=False, num_workers=config['n_cpu'], drop_last=True)
 
-        self.test_dir = "/workdir/radish/PET-CT/CT2PET_3d_npy/DICOM_000000006355_LƯỜNG THỊ MAI 17909/0002.npy"
-        self.test_image = np.load(self.test_dir)[67]
+        self.test_dir = "/workdir/radish/PET-CT/data_Dienbien_demo_27_8_npy_v2/DICOM_000000026833_TRẦN THÁI SƠN 47742/0001.npy"
+        self.test_image = np.load(self.test_dir)[69]
        # Loss plot
        # self.logger = Logger(config['name'],config['port'],config['n_epochs'], len(self.dataloader))       
         
     def train(self):
         ###### Training ######
         print('Training CycleGAN Zoom')
-        self.netG_A2B.load_state_dict(torch.load('/home/PET-CT/hachi/Reg-GAN/Checkpoint/phase2/augment/coronal/netG_A2B_epoch31.pth'))
+        self.netG_A2B.load_state_dict(torch.load('/home/PET-CT/huutien/Reg-GAN/output_30k/Zoom/Cyc/NC+RnetG_A2B_ep31.pth'))
         if not os.path.exists(self.config["save_root"]):
                 os.makedirs(self.config["save_root"])
         for epoch in range(self.config['epoch'], self.config['n_epochs']):
             # save check inference data dienbien
-            if epoch % 2 == 0:
-                print('inperence-----')
-                # result_path = f"./output_30k/Zoom/Cyc/NC+R/img/25084604910/0005/100_epoch_{epoch}.npy"
-                result_path = f"/home/PET-CT/huutien/Reg-GAN/output_demo_dienbien/head/epoch_{epoch}.npy"
-                with torch.no_grad():
-                    self._2D_inference(self.test_image, result_path)
+            # if epoch % 2 == 0:
+            print('inperence-----')
+            # result_path = f"./output_30k/Zoom/Cyc/NC+R/img/25084604910/0005/100_epoch_{epoch}.npy"
+            result_path = f"/home/PET-CT/huutien/Reg-GAN/output_demo_dienbien/head_v2/epoch_{epoch}.npy"
+            with torch.no_grad():
+                self._2D_inference(self.test_image, result_path)
             print('epoch:',epoch)
             tbar = tqdm(enumerate(self.dataloader), total=len(self.dataloader), desc=f"Epoch {epoch}/{self.config['n_epochs']}", leave=True)
 
@@ -376,20 +376,26 @@ class Cyc_Trainer():
 
     def _3D_inference(self, patient_list, result_path):
         #self.netG_A2B.load_state_dict(torch.load("/home/PET-CT/hachi/Reg-GAN/Checkpoint/phase2/augment/head/netG_A2B_epoch3.pth"))
-        self.netG_A2B.load_state_dict(torch.load("/home/PET-CT/hachi/Reg-GAN/Checkpoint/phase2/augment/head/netG_A2B_epoch2.pth"))
+        self.netG_A2B.load_state_dict(torch.load("/home/PET-CT/huutien/Reg-GAN/Checkpoint_fine_head/netG_A2B_epoch0.pth"))
 
-        def delete_background(image, value=0):
-            # Thay các pixel có giá trị min về value
-            # min_value = np.min(image)
-            # image[image == min_value] = value
-            image = np.clip(image, 7100, None)
+        # def delete_background(image, value=0):
+        #     # Thay các pixel có giá trị min về value
+        #     # min_value = np.min(image)
+        #     # image[image == min_value] = value
+        #     image = np.clip(image, 7100, None)
+        #     return image
+        def delete_background(image, value=7100):
+            # Fix: use np.amin instead of np.min to avoid recursion
+            min_value = np.amin(image)
+            if min_value==0:
+                    image[image == min_value] = value
             return image
         def preprocess(ct_slice): # ct_voxel: W * H (512 * 512)
             transform = transforms.Compose([
             transforms.Resize(256),
             transforms.ToTensor()
             ])
-            #ct_slice = delete_background(ct_slice)
+            ct_slice = delete_background(ct_slice)
 
             ct_slice = (ct_slice - ct_slice.min())/(ct_slice.max() - ct_slice.min())
             ct_slice = (ct_slice - 0.5)*2
@@ -416,7 +422,7 @@ class Cyc_Trainer():
             if os.path.isdir(patient_path):
                 # Tìm file ct.npy bên trong thư mục bệnh nhân
                 # ct_file_path = os.path.join(patient_path, 'ct.npy')
-                ct_file_path = os.path.join(patient_path, '0002.npy')
+                ct_file_path = os.path.join(patient_path, '0001.npy')
                 
                 # Kiểm tra tệp có tồn tại hay không
                 if os.path.exists(ct_file_path):
@@ -428,11 +434,11 @@ class Cyc_Trainer():
                     for i in tqdm(range(ct_img.shape[0])):
                         ct_slice = ct_img[i]
                         A_image = preprocess(ct_slice).unsqueeze(0)
-                        print(A_image.unsqueeze(0).shape)
-                        print(A_image.max(), A_image.min())
+                        #print(A_image.unsqueeze(0).shape)
+                        #print(A_image.max(), A_image.min())
                         real_A = Variable(self.input_A.copy_(A_image))
                         fake_B = self.netG_A2B(real_A)
-                        print(fake_B.max(), fake_B.min())
+                        #print(fake_B.max(), fake_B.min())
                         fake_B = postprocess(fake_B)
                         predicted_slices.append(fake_B)
                     # Chuyển danh sách các lát cắt đã dự đoán thành một khối 3D numpy array
@@ -444,7 +450,7 @@ class Cyc_Trainer():
                     os.makedirs(patient_result_path, exist_ok=True)
                     # print(f"Saving result to {patient_result_path}")
                     # Lưu kết quả dự đoán vào thư mục của bệnh nhân
-                    output_file_path = os.path.join(patient_result_path, 'predicted_axial_head_ep3.npy')
+                    output_file_path = os.path.join(patient_result_path, 'predicted_head_0.npy')
                     np.save(output_file_path, predicted_volume)
                     print(f"Saved predicted volume to {output_file_path}")
         
@@ -456,30 +462,36 @@ class Cyc_Trainer():
         self.netG_A2B.load_state_dict(torch.load(self.config['checkpoint_path']))
 
         # 1. Định nghĩa các hàm con tiền/hậu xử lý (Lấy từ _3D_inference)
-        def delete_background_numpy(ct_array: np.ndarray, 
-                                    clip_value: float = 7000.0, 
-                                    check_range: float = 500.0, 
-                                    percentage_threshold: float = 0.3) -> np.ndarray:
-            lower_bound = clip_value - check_range
-            upper_bound = clip_value + check_range
+        # def delete_background_numpy(ct_array: np.ndarray, 
+        #                             clip_value: float = 7000.0, 
+        #                             check_range: float = 500.0, 
+        #                             percentage_threshold: float = 0.3) -> np.ndarray:
+        #     lower_bound = clip_value - check_range
+        #     upper_bound = clip_value + check_range
             
-            background_mask = np.logical_and(ct_array >= lower_bound, ct_array <= upper_bound)
-            num_background_pixels = np.sum(background_mask)
-            total_pixels = ct_array.size # .size là cách lấy tổng số phần tử trong NumPy
+        #     background_mask = np.logical_and(ct_array >= lower_bound, ct_array <= upper_bound)
+        #     num_background_pixels = np.sum(background_mask)
+        #     total_pixels = ct_array.size # .size là cách lấy tổng số phần tử trong NumPy
 
-            if total_pixels == 0:
-                return ct_array
+        #     if total_pixels == 0:
+        #         return ct_array
                 
-            percentage = num_background_pixels / total_pixels
+        #     percentage = num_background_pixels / total_pixels
             
 
-            if percentage > percentage_threshold:
-                # np.clip là hàm tương đương torch.clamp
-                processed_array = np.clip(ct_array, a_min=clip_value, a_max=None)
-            else:
-                processed_array = ct_array
+        #     if percentage > percentage_threshold:
+        #         # np.clip là hàm tương đương torch.clamp
+        #         processed_array = np.clip(ct_array, a_min=clip_value, a_max=None)
+        #     else:
+        #         processed_array = ct_array
 
-            return processed_array
+        #     return processed_array
+        def delete_background_numpy(image, value=7100):
+            # Fix: use np.amin instead of np.min to avoid recursion
+            min_value = np.amin(image)
+            if min_value==0:
+                    image[image == min_value] = value
+            return image
         
         def preprocess(ct_slice):
             transform = transforms.Compose([

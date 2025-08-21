@@ -27,7 +27,7 @@ class ImageDataset(Dataset):
         B_image = np.load(B_path, allow_pickle=True)
         
         # Delete background
-        # A_image = ImageDataset.delete_background(A_image)
+        A_image = ImageDataset.delete_background(A_image)
        
         # Random Zoom In
         if np.random.rand() > 0.1:

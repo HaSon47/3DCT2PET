@@ -6,8 +6,10 @@ regist: True    # With or without registration network
 noise_level: 1  #  noise level
 port: 6019   #  port parameters
 #save_root: './output_30k/Cyc/NC+R/'
-save_root: '/home/PET-CT/hachi/Reg-GAN/Checkpoint/phase2/augment/head/'
-checkpoint_path: '/home/PET-CT/hachi/Reg-GAN/Checkpoint/phase2/augment/head/netG_A2B_epoch2.pth'
+# save_root: '/home/PET-CT/hachi/Reg-GAN/Checkpoint/phase2/augment/head/'
+save_root: '/home/PET-CT/huutien/Reg-GAN/Checkpoint_fine_head/'
+#checkpoint_path: '/home/PET-CT/huutien/Reg-GAN/output_30k/Zoom/Cyc/NC+RnetG_A2B_ep31.pth'
+checkpoint_path: /home/PET-CT/huutien/Reg-GAN/Checkpoint_fine_head/netG_A2B_epoch0.pth
 #image_save: './output_30k/Cyc/NC+R/img/'
 image_save: './output_30k/Zoom/Cyc/NC+R/img/'
 
@@ -26,7 +28,7 @@ batchSize: 1
 dataroot: '/workdir/radish/PET-CT/2D_CT_PET_head/train/'  
 #val_dataroot: '/workdir/radish/PET-CT/2D_CT_PET/val/'
 val_dataroot: '/workdir/radish/PET-CT/2D_CT_PET_head/val/'
-lr: 0.00001                   # initial learning rate
+lr: 0.000001                   # initial learning rate
 decay_epoch: 20            # epoch to start linearly decaying the learning rate to 0
 size: 256                # size of the data crop
 input_nc: 1         
